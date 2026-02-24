@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS products (
     name TEXT NOT NULL,
     category TEXT NOT NULL,
     price NUMERIC NOT NULL,
+    sku TEXT,
     stock INTEGER NOT NULL DEFAULT 0,
     image TEXT,
     image2 TEXT,

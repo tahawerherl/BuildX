@@ -98,7 +98,7 @@ const SellerDashboard = () => {
 
     // Form State
     const [form, setForm] = useState({
-        id: '', sku: '', name: '', category: '', price: '', stock: '', image: '', image2: '', image3: '', description: ''
+        id: '', name: '', category: '', price: '', stock: '', image: '', image2: '', image3: '', description: ''
     });
 
     const [sellerCancelModal, setSellerCancelModal] = useState({ show: false, orderId: null, reason: '' });
@@ -223,7 +223,6 @@ const SellerDashboard = () => {
 
         const descArray = form.description ? form.description.split("\n").map(t => t.trim()).filter(Boolean) : [];
         const payload = {
-            sku: form.sku || `SKU-${Date.now().toString().slice(-6)}`,
             name: form.name,
             category: form.category,
             price: parseFloat(form.price),
@@ -257,7 +256,7 @@ const SellerDashboard = () => {
     };
 
     const resetForm = () => {
-        setForm({ id: '', sku: '', name: '', category: '', price: '', stock: '', image: '', image2: '', image3: '', description: '' });
+        setForm({ id: '', name: '', category: '', price: '', stock: '', image: '', image2: '', image3: '', description: '' });
         setActiveView('inventory');
         setActiveFormTab(1);
         loadInventory();
@@ -376,7 +375,7 @@ const SellerDashboard = () => {
     };
 
     const handleDownloadTemplate = () => {
-        const csvContent = "data:text/csv;charset=utf-8,sku,name,category,price,stock,description_bullets,image_main,image_2,image_3\nBDX-001,Example Drill,Power Tools,4500,50,\"Feature 1, Feature 2\",https://example.com/img1.png,,";
+        const csvContent = "data:text/csv;charset=utf-8,name,category,price,stock,description_bullets,image_main,image_2,image_3\nExample Drill,Power Tools,4500,50,\"Feature 1, Feature 2\",https://example.com/img1.png,,";
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
@@ -403,7 +402,6 @@ const SellerDashboard = () => {
                 if (row.length < 6 || !row[1]) continue; // Title is required
 
                 uploadPayloads.push({
-                    sku: row[0] || `SKU-${Date.now().toString().slice(-6)}-${i}`,
                     name: row[1],
                     category: row[2] || 'Uncategorized',
                     price: parseFloat(row[3]) || 0,
@@ -412,7 +410,6 @@ const SellerDashboard = () => {
                     image: row[6] || '',
                     image2: row[7] || null,
                     image3: row[8] || null,
-                    brand: currentUser?.brand_name || "BuildX Seller",
                     seller_id: currentUser?.seller_id
                 });
             }
