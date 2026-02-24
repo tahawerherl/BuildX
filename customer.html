@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Account Hub | BuildX</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        .hub-container {
+            max-width: 1000px;
+            margin: 60px auto;
+            padding: 0 40px;
+        }
+
+        .hub-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .hub-header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .hub-header p {
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .hub-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid transparent;
+        }
+
+        .hub-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(249, 99, 2, 0.2);
+        }
+
+        .hub-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #fff4ed;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .hub-info h3 {
+            font-size: 20px;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+
+        .hub-info p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .hub-container {
+                padding: 0 20px;
+            }
+
+            .hub-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="main-header glass">
+        <div class="logo-container" onclick="window.location.href='index.html'">
+            Build<span>X</span>
+        </div>
+
+        <div class="nav-actions">
+            <a href="customer.html" class="nav-btn">
+                <i class='bx bxs-user-circle' style="color:var(--primary);"></i>
+                <span style="color:var(--primary);" id="navGreeting">Account</span>
+            </a>
+            <a href="orders.html" class="nav-btn">
+                <i class='bx bx-package'></i>
+                <span>Orders</span>
+            </a>
+            <a href="cart.html" class="nav-btn">
+                <i class='bx bx-cart-alt'></i>
+                <span>Cart</span>
+                <div class="cart-badge" id="cartCountBadge">0</div>
+            </a>
+        </div>
+    </header>
+
+    <div class="hub-container">
+
+        <div class="hub-header">
+            <h1 id="welcomeText">Welcome back!</h1>
+            <p>Manage your orders, profile, and preferences.</p>
+        </div>
+
+        <div class="hub-grid">
+
+            <div class="hub-card" onclick="window.location.href='orders.html'">
+                <div class="hub-icon"><i class='bx bx-package'></i></div>
+                <div class="hub-info">
+                    <h3>Your Orders</h3>
+                    <p>Track packages, leave reviews, and view invoices.</p>
+                </div>
+            </div>
+
+            <div class="hub-card">
+                <div class="hub-icon"><i class='bx bx-shield-quarter'></i></div>
+                <div class="hub-info">
+                    <h3>Login & Security</h3>
+                    <p>Update your password and secure your account.</p>
+                </div>
+            </div>
+
+            <div class="hub-card">
+                <div class="hub-icon"><i class='bx bx-credit-card-alt'></i></div>
+                <div class="hub-info">
+                    <h3>Payment Methods</h3>
+                    <p>Manage cards, bank accounts, and BuildX Credits.</p>
+                </div>
+            </div>
+
+            <div class="hub-card">
+                <div class="hub-icon"><i class='bx bx-map-pin'></i></div>
+                <div class="hub-info">
+                    <h3>Saved Addresses</h3>
+                    <p>Edit shipping and billing addresses for faster checkout.</p>
+                </div>
+            </div>
+
+            <div class="hub-card">
+                <div class="hub-icon"><i class='bx bx-headphone'></i></div>
+                <div class="hub-info">
+                    <h3>Help Center</h3>
+                    <p>Contact support, view FAQs, and report issues.</p>
+                </div>
+            </div>
+
+            <div class="hub-card" onclick="logout()">
+                <div class="hub-icon" style="background:#fef2f2; color:#ef4444;"><i class='bx bx-log-out'></i></div>
+                <div class="hub-info">
+                    <h3>Sign Out</h3>
+                    <p>Securely log out of your BuildX account.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function logout() {
+            localStorage.removeItem("currentUser");
+            window.location.href = "auth.html";
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const user = JSON.parse(localStorage.getItem("currentUser"));
+            if (!user) {
+                window.location.href = "auth.html";
+            } else {
+                const firstName = user.name.split(" ")[0];
+                document.getElementById("navGreeting").innerText = firstName;
+                document.getElementById("welcomeText").innerText = "Welcome back, " + firstName + "!";
+            }
+
+            let cart = JSON.parse(localStorage.getItem("cart")) || {};
+            const badge = document.getElementById("cartCountBadge");
+            if (badge) {
+                badge.innerText = Object.values(cart).reduce((sum, item) => sum + item.qty, 0);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

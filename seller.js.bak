@@ -1,0 +1,243 @@
+function logout() {
+    localStorage.removeItem("currentUser");
+    window.location.href = "auth.html";
+}
+
+function getCurrentSeller() {
+    const u = JSON.parse(localStorage.getItem("currentUser"));
+    if (!u || u.role !== "seller" || !u.seller_id) return null;
+    return u;
+}
+
+function showSection(sectionId) {
+    var sections = ["overviewSection", "productSection", "orderSection", "feedbackSection"];
+    sections.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.style.display = id === sectionId ? "block" : "none";
+    });
+    var buttons = document.querySelectorAll(".seller-menu button");
+    buttons.forEach(function(btn) { btn.classList.remove("active"); });
+    buttons.forEach(function(btn) {
+        if (sectionId === "overviewSection" && btn.id === "menu-overview") btn.classList.add("active");
+        if (sectionId === "productSection" && btn.textContent.indexOf("Inventory") !== -1) btn.classList.add("active");
+        if (sectionId === "orderSection" && btn.textContent.indexOf("Orders") !== -1) btn.classList.add("active");
+        if (sectionId === "feedbackSection" && btn.textContent.indexOf("Feedback") !== -1) btn.classList.add("active");
+    });
+}
+
+function parseDescription(descText) {
+    if (!descText) return [];
+    return descText
+        .split(",")
+        .map(t => t.trim())
+        .filter(Boolean);
+}
+
+async function loadInventory() {
+    const tbody = document.getElementById("productTable");
+    if (!tbody) return;
+
+    const seller = getCurrentSeller();
+    if (!seller) {
+        tbody.innerHTML = "<tr><td colspan='6'>Please login as a seller.</td></tr>";
+        return;
+    }
+
+    tbody.innerHTML = "<tr><td colspan='6'>Loading...</td></tr>";
+    let products = [];
+
+    if (window.supabaseClient) {
+        try {
+            const { data, error } = await window.supabaseClient
+                .from("products")
+                .select("*")
+                .eq("seller_id", seller.seller_id)
+                .order("id", { ascending: true });
+
+            if (error) throw error;
+            products = data || [];
+        } catch (err) {
+            console.error("Supabase se inventory load karne mein error:", err.message);
+        }
+    }
+
+    tbody.innerHTML = "";
+    if (products.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='6'>Abhi koi product nahi. Naya product add karein.</td></tr>";
+    } else {
+        products.forEach(p => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><img src="${p.image || ""}" alt="${p.name}" style="width:60px; height:60px; object-fit:cover;"></td>
+                    <td>${p.name}</td>
+                    <td>${p.brand || "-"}</td>
+                    <td>PKR ${p.price}</td>
+                    <td>${p.stock ?? 0}</td>
+                    <td>
+                        <button onclick="editProduct(${p.id})">Edit</button>
+                        <button onclick="deleteProduct(${p.id})">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    var totalEl = document.getElementById("metricTotalProducts");
+    if (totalEl) totalEl.textContent = products.length;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    var seller = getCurrentSeller();
+    if (!seller) {
+        window.location.href = "auth.html";
+        return;
+    }
+    if (document.getElementById("sellerBrandHeading")) {
+        document.getElementById("sellerBrandHeading").textContent = "Seller Central – " + (seller.brand_name || "My Store");
+    }
+    showSection("overviewSection");
+    loadInventory();
+});
+
+async function saveProduct() {
+    const name = document.getElementById("productName").value.trim();
+    const price = document.getElementById("productPrice").value;
+    const stock = document.getElementById("productStock").value;
+    const image = document.getElementById("productImage").value.trim();
+    const description = document.getElementById("productDesc").value.trim();
+    const editId = document.getElementById("editProductId").value;
+
+    if (!name || !price) {
+        alert("Bhai, Name aur Price likhna laazmi hai!");
+        return;
+    }
+
+    const descArray = parseDescription(description);
+    const numericPrice = parseFloat(price);
+    const numericStock = parseInt(stock, 10) || 0;
+
+    if (!window.supabaseClient) {
+        alert("Supabase client nahi mila. config.js aur internet connection check karein.");
+        return;
+    }
+
+    var seller = getCurrentSeller();
+    if (!seller) {
+        alert("Seller login required.");
+        return;
+    }
+    var brand = seller.brand_name || "My Brand";
+
+    try {
+        if (editId) {
+            const idNum = Number(editId);
+            const { error } = await window.supabaseClient
+                .from("products")
+                .update({
+                    name,
+                    price: numericPrice,
+                    stock: numericStock,
+                    image,
+                    description: descArray,
+                    brand: brand
+                })
+                .eq("id", idNum)
+                .eq("seller_id", seller.seller_id);
+
+            if (error) throw error;
+            alert("Product update ho gaya.");
+        } else {
+            const { error } = await window.supabaseClient
+                .from("products")
+                .insert([{
+                    name,
+                    price: numericPrice,
+                    stock: numericStock,
+                    image,
+                    description: descArray,
+                    seller_id: seller.seller_id,
+                    brand: brand
+                }]);
+
+            if (error) throw error;
+            alert("Naya product add ho gaya – " + brand + " ke naam se.");
+        }
+
+        // Inputs clear karna
+        document.getElementById("productName").value = "";
+        document.getElementById("productPrice").value = "";
+        document.getElementById("productStock").value = "";
+        document.getElementById("productImage").value = "";
+        document.getElementById("productDesc").value = "";
+        document.getElementById("editProductId").value = "";
+        const addBtn = document.getElementById("addBtn");
+        if (addBtn) addBtn.textContent = "Save Product";
+
+        // Inventory reload
+        loadInventory();
+    } catch (err) {
+        console.error("Supabase par product save/update karne mein error:", err.message);
+        alert("Product save nahi ho saka: " + err.message);
+    }
+}
+
+async function editProduct(id) {
+    if (!window.supabaseClient) {
+        alert("Supabase client nahi mila. config.js aur internet connection check karein.");
+        return;
+    }
+    var seller = getCurrentSeller();
+    if (!seller) return;
+
+    try {
+        const { data, error } = await window.supabaseClient
+            .from("products")
+            .select("*")
+            .eq("id", id)
+            .eq("seller_id", seller.seller_id)
+            .single();
+
+        if (error) throw error;
+        const p = data;
+
+        document.getElementById("productName").value = p.name || "";
+        document.getElementById("productPrice").value = p.price || "";
+        document.getElementById("productStock").value = p.stock ?? "";
+        document.getElementById("productImage").value = p.image || "";
+        document.getElementById("productDesc").value = Array.isArray(p.description) ? p.description.join(", ") : "";
+        document.getElementById("editProductId").value = p.id;
+
+        const addBtn = document.getElementById("addBtn");
+        if (addBtn) addBtn.textContent = "Update Product";
+    } catch (err) {
+        console.error("Supabase se product edit ke liye laane mein error:", err.message);
+        alert("Product load nahi ho saka: " + err.message);
+    }
+}
+
+async function deleteProduct(id) {
+    if (!confirm("Kya aap sure hain ke ye product delete karna hai?")) return;
+
+    if (!window.supabaseClient) {
+        alert("Supabase client nahi mila. config.js aur internet connection check karein.");
+        return;
+    }
+
+    var seller = getCurrentSeller();
+    if (!seller) return;
+    try {
+        const { error } = await window.supabaseClient
+            .from("products")
+            .delete()
+            .eq("id", id)
+            .eq("seller_id", seller.seller_id);
+
+        if (error) throw error;
+
+        alert("Product delete ho gaya.");
+        loadInventory();
+    } catch (err) {
+        console.error("Supabase se product delete karne mein error:", err.message);
+        alert("Product delete nahi ho saka: " + err.message);
+    }
+}

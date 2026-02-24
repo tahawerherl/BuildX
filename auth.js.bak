@@ -1,0 +1,85 @@
+let isLogin = true;
+const brandInput = document.getElementById("brandName");
+
+function toggleAuth() {
+    isLogin = !isLogin;
+    document.getElementById("authTitle").innerText = isLogin ? "Login" : "Signup";
+    document.getElementById("signupFields").style.display = isLogin ? "none" : "block";
+    document.getElementById("mainBtn").innerText = isLogin ? "Login" : "Create Account";
+    document.getElementById("toggleLink").innerText = isLogin ? "Don't have an account? Signup" : "Already have an account? Login";
+    toggleBrandField();
+}
+
+function toggleBrandField() {
+    const role = document.getElementById("role");
+    if (brandInput) brandInput.style.display = role && role.value === "seller" ? "block" : "none";
+}
+
+var roleEl = document.getElementById("role");
+if (roleEl) roleEl.addEventListener("change", toggleBrandField);
+
+async function handleAuth() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+
+    if (isLogin) {
+        const user = users.find(u => u.email === email && u.password === password);
+        if (!user) {
+            alert("Invalid email or password!");
+            return;
+        }
+        // Seller hai to Supabase se seller_id + brand_name lao
+        if (user.role === "seller" && window.supabaseClient) {
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from("sellers")
+                    .select("id, brand_name")
+                    .eq("email", email)
+                    .maybeSingle();
+                if (!error && data) {
+                    user.seller_id = data.id;
+                    user.brand_name = data.brand_name;
+                }
+            } catch (e) { console.error(e); }
+        }
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        alert("Welcome back, " + user.name);
+        if (user.role === "seller") window.location.href = "seller.html";
+        else window.location.href = "index.html";
+    } else {
+        const name = document.getElementById("username").value.trim();
+        const role = document.getElementById("role").value;
+        const brandName = (document.getElementById("brandName") && document.getElementById("brandName").value.trim()) || "";
+
+        if (!name || !email || !password) return alert("Please fill all fields!");
+        if (role === "seller" && !brandName) return alert("Sellers must enter a Brand / Store name.");
+
+        const userExists = users.some(u => u.email === email);
+        if (userExists) return alert("User already exists!");
+
+        let seller_id = null;
+        let brand_name = brandName;
+        if (role === "seller" && window.supabaseClient) {
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from("sellers")
+                    .insert([{ email, name, brand_name: brandName }])
+                    .select("id")
+                    .single();
+                if (error) throw error;
+                if (data) { seller_id = data.id; brand_name = brandName; }
+            } catch (err) {
+                console.error(err);
+                alert("Seller account create nahi ho saka. Supabase check karein.");
+                return;
+            }
+        }
+
+        const newUser = { name, email, password, role, seller_id, brand_name };
+        users.push(newUser);
+        localStorage.setItem("users", JSON.stringify(users));
+        alert("Account created! Please login.");
+        toggleAuth();
+    }
+}

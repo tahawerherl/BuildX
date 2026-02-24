@@ -1,0 +1,90 @@
+const itemsContainer = document.getElementById("checkoutItems");
+const totalEl = document.getElementById("checkoutTotal");
+
+function renderCheckout() {
+    if (!itemsContainer || !totalEl) return;
+    var cart = JSON.parse(localStorage.getItem("cart")) || {};
+    var total = 0;
+    itemsContainer.innerHTML = "";
+
+    if (Object.keys(cart).length === 0) {
+        itemsContainer.innerHTML = "<tr><td colspan='2'>Your cart is empty</td></tr>";
+        totalEl.textContent = "Total: PKR 0";
+        return;
+    }
+
+    Object.values(cart).forEach(function(item) {
+        var price = Number(item.price) || 0;
+        var qty = Number(item.qty) || 0;
+        var itemTotal = price * qty;
+        total += itemTotal;
+        itemsContainer.innerHTML += "<tr><td>" + (item.name || "Product") + " <strong>x" + qty + "</strong></td><td align=\"right\">PKR " + itemTotal + "</td></tr>";
+    });
+
+    totalEl.textContent = "Total: PKR " + total;
+}
+
+function calculateTotal(cartItems) {
+    return Object.values(cartItems).reduce(function(sum, item) {
+        return sum + (Number(item.price) || 0) * (Number(item.qty) || 0);
+    }, 0);
+}
+
+async function confirmOrder() {
+    var name = document.getElementById("custName").value.trim();
+    var address = document.getElementById("custAddress").value.trim();
+    var cart = JSON.parse(localStorage.getItem("cart")) || {};
+    var currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+    if (!name || !address) {
+        alert("Please fill in your shipping details.");
+        return;
+    }
+
+    if (Object.keys(cart).length === 0) {
+        alert("Your cart is empty!");
+        return;
+    }
+
+    var total = calculateTotal(cart);
+
+    if (window.supabaseClient) {
+        try {
+            var res = await window.supabaseClient.from("orders").insert([{
+                customer_name: name,
+                customer_email: currentUser ? currentUser.email : "guest",
+                address: address,
+                total: total,
+                item_count: Object.keys(cart).length,
+                status: "Pending",
+                created_at: new Date().toISOString(),
+                items: cart
+            }]).select("id").single();
+            if (res.error) throw res.error;
+            alert("Order Placed! Order ID: #" + (res.data && res.data.id ? res.data.id : ""));
+        } catch (e) {
+            console.error(e);
+            alert("Order place nahi ho saka: " + (e.message || e));
+            return;
+        }
+    } else {
+        var orders = JSON.parse(localStorage.getItem("orders")) || [];
+        orders.push({
+            id: Date.now(),
+            customerName: name,
+            customerEmail: currentUser ? currentUser.email : "guest",
+            address: address,
+            total: total,
+            itemCount: Object.keys(cart).length,
+            status: "Pending",
+            date: new Date().toLocaleString()
+        });
+        localStorage.setItem("orders", JSON.stringify(orders));
+        alert("Order Placed! Order ID: #" + orders[orders.length - 1].id);
+    }
+
+    localStorage.removeItem("cart");
+    window.location.href = "orders.html";
+}
+
+document.addEventListener("DOMContentLoaded", renderCheckout);

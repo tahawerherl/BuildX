@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout | BuildX</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    body {
+      background: var(--bg-color);
+    }
+
+    .checkout-header {
+      background: var(--card-bg);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .checkout-header h1 {
+      font-size: 24px;
+      margin: 0;
+      color: var(--text-dark);
+    }
+
+    .checkout-header .secure-badge {
+      color: #10b981;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .checkout-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 40px;
+      display: flex;
+      gap: 50px;
+      align-items: flex-start;
+    }
+
+    .checkout-main {
+      flex: 2;
+    }
+
+    .step-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s;
+      border: 2px solid transparent;
+    }
+
+    .step-card.active {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-md);
+    }
+
+    .step-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+    }
+
+    .step-header .change-btn {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+      display: none;
+    }
+
+    .step-header .change-btn:hover {
+      text-decoration: underline;
+    }
+
+    .step-content {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .step-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .summary-view {
+      display: none;
+      padding: 15px;
+      background: #f9fafb;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .payment-option {
+      border: 2px solid #e5e7eb;
+      padding: 15px 20px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .payment-option:hover,
+    .payment-option.selected {
+      border-color: var(--primary);
+      background: #fff4ed;
+    }
+
+    .payment-option input {
+      accent-color: var(--primary);
+      transform: scale(1.2);
+    }
+
+    .payment-option label {
+      font-weight: 700;
+      color: var(--text-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .checkout-sidebar {
+      flex: 1;
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 40px;
+    }
+
+    .review-item {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .review-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      border-radius: var(--radius-sm);
+      background: #f9fafb;
+      padding: 5px;
+    }
+
+    @media (max-width: 800px) {
+      .checkout-container {
+        flex-direction: column;
+        padding: 0 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="checkout-header glass">
+    <div class="logo-container" onclick="window.location.href='index.html'">
+      Build<span>X</span>
+    </div>
+    <h1>Checkout (<span id="checkoutItemCount">0</span>)</h1>
+    <div class="secure-badge"><i class='bx bxs-lock-alt'></i> Secure</div>
+  </header>
+
+  <div class="checkout-container">
+
+    <div class="checkout-main">
+
+      <!-- STEP 1 -->
+      <div class="step-card" id="card1">
+        <div class="step-header">
+          <div><i class='bx bx-map' style="color:var(--primary);"></i> 1. Shipping Address</div>
+          <div class="change-btn" id="changeBtn1" onclick="openStep(1)">Edit</div>
+        </div>
+
+        <div class="step-content active" id="content1">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="custName" class="form-input" placeholder="First and Last name">
+          </div>
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" id="custAddress" class="form-input" placeholder="Street, Apartment, Suite">
+          </div>
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" id="custCity" class="form-input" placeholder="City">
+          </div>
+          <button class="btn-primary" style="width:max-content;" onclick="completeStep1()">Continue to Payment</button>
+        </div>
+
+        <div class="summary-view" id="summary1">
+          <strong id="dispName" style="color:var(--text-dark);"></strong><br>
+          <span id="dispAddress"></span><br>
+          <span id="dispCity"></span>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step-card" id="card2">
+        <div class="step-header">
+          <div><i class='bx bx-credit-card' style="color:var(--primary);"></i> 2. Payment Method</div>
+          <div class="change-btn" id="changeBtn2" onclick="openStep(2)">Edit</div>
+        </div>
+
+        <div class="step-content" id="content2">
+          <div class="payment-option selected" id="optCOD" onclick="selectPayment('cod')">
+            <input type="radio" name="paymentType" value="cod" id="payCOD" checked>
+            <label for="payCOD"><i class='bx bx-money' style="font-size:24px; color:var(--primary);"></i> Cash on
+              Delivery</label>
+          </div>
+          <div class="payment-option" id="optCard" onclick="selectPayment('card')">
+            <input type="radio" name="paymentType" value="card" id="payCard">
+            <label for="payCard"><i class='bx bx-credit-card-alt' style="font-size:24px; color:var(--primary);"></i>
+              Credit / Debit Card</label>
+          </div>
+          <button class="btn-primary" style="width:max-content; margin-top:10px;" onclick="completeStep2()">Review
+            Order</button>
+        </div>
+
+        <div class="summary-view" id="summary2">
+          <strong id="dispPayment" style="color:var(--text-dark); display:flex; align-items:center; gap:8px;"></strong>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step-card" id="card3">
+        <div class="step-header">
+          <div><i class='bx bx-box' style="color:var(--primary);"></i> 3. Review Items</div>
+        </div>
+        <div class="step-content" id="content3">
+          <div id="checkoutItemsList">
+            <!-- JS Injected -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="checkout-sidebar">
+      <h2 style="font-size:22px; margin-bottom:25px;">Order Summary</h2>
+
+      <div style="display:flex; justify-content:space-between; margin-bottom:15px; color:var(--text-muted);">
+        <span>Subtotal</span>
+        <span id="sumItems" style="color:var(--text-dark); font-weight:600;">PKR 0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:15px; color:var(--text-muted);">
+        <span>Shipping</span>
+        <span style="color:#10b981; font-weight:700;">FREE</span>
+      </div>
+      <div
+        style="display:flex; justify-content:space-between; margin-bottom:20px; padding-bottom:20px; border-bottom:2px solid #e5e7eb; color:var(--text-muted);">
+        <span>Taxes</span>
+        <span>$0.00</span>
+      </div>
+
+      <div
+        style="display:flex; justify-content:space-between; font-size:26px; font-weight:800; color:var(--primary); margin-bottom:30px;">
+        <span>Total</span>
+        <span id="sumTotal">PKR 0</span>
+      </div>
+
+      <button class="btn-primary" style="font-size:18px; padding:15px;" onclick="placeOrder()">
+        <i class='bx bx-lock-alt'></i> Place Order
+      </button>
+
+      <p style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:20px;">
+        By placing your order, you agree to BuildX's Conditions of Use & Sale.
+      </p>
+    </div>
+
+  </div>
+
+  <script src="checkout.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,145 @@
+/* ==========================================
+   1. DATA LOADING & INITIALIZATION
+   ========================================== */
+const params = new URLSearchParams(window.location.search);
+const productId = Number(params.get("id"));
+
+// LocalStorage se fallback data uthana
+const localProducts = JSON.parse(localStorage.getItem("products")) || [];
+let product = localProducts.find(p => p.id === productId);
+
+const detail = document.getElementById("productDetail");
+const reviewsList = document.getElementById("reviewsList");
+
+/* ==========================================
+   2. PRODUCT DETAIL RENDERING
+   ========================================== */
+async function loadProductFromSupabase() {
+    if (!window.supabaseClient) {
+        renderProduct();
+        return;
+    }
+
+    try {
+        const { data, error } = await window.supabaseClient
+            .from("products")
+            .select("*")
+            .eq("id", productId)
+            .maybeSingle();
+
+        if (error) throw error;
+        if (data) {
+            product = data;
+        }
+    } catch (err) {
+        console.error("Supabase se product load karne mein error:", err.message);
+    } finally {
+        renderProduct();
+    }
+}
+
+function renderProduct() {
+if (product) {
+    // 4 Bullets handle karna
+    const bulletsHTML = product.description && product.description.length > 0 
+        ? product.description.map(point => `<li>${point}</li>`).join("") 
+        : "<li>High-quality durable material</li><li>Modern aesthetic design</li><li>Weather resistant coating</li><li>Easy to install and maintain</li>";
+
+    detail.innerHTML = `
+        <div style="display:flex; gap:40px; padding:30px; flex-wrap:wrap; background:white; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.05);">
+            <div style="flex:1; min-width:300px;">
+                <img src="${product.image}" style="width:100%; border-radius:12px; object-fit:cover; border:1px solid #eee;">
+            </div>
+
+            <div style="flex:1.2; min-width:300px;">
+                <h1 style="font-size:36px; color:#222; margin-bottom:10px;">${product.name}</h1>
+                <p style="font-size:14px; color:#666; margin-bottom:15px;"><strong>Sold by:</strong> ${product.brand || "BuildX"}</p>
+                
+                <div style="margin-bottom:20px;">
+                    <span style="color:#f9b115; font-size:20px;">★★★★★</span>
+                    <span style="color:#777; margin-left:10px;">(Verified Reviews)</span>
+                </div>
+
+                <h2 style="color:#f96302; font-size:28px; margin-bottom:15px;">PKR ${product.price.toLocaleString()}</h2>
+                
+                <p style="font-size:16px; margin-bottom:20px; line-height:1.6; color:#666;">
+                    <strong>Description:</strong><br>
+                    This premium product is specifically curated for modern home building and decoration. 
+                    Crafted with precision, it ensures both functionality and style for your living space.
+                </p>
+
+                <div style="background:#fdf2e9; padding:20px; border-radius:10px; margin-bottom:25px;">
+                    <h3 style="margin-bottom:10px; color:#d35400;">Key Features:</h3>
+                    <ul style="padding-left:20px; color:#444; line-height:2;">
+                        ${bulletsHTML}
+                    </ul>
+                </div>
+
+                <div style="border-top:1px solid #eee; padding-top:25px;">
+                    <p style="margin-bottom:15px;"><b>Availability:</b> 
+                        <span style="color:${product.stock > 0 ? 'green' : 'red'}; font-weight:bold;">
+                            ${product.stock > 0 ? `${product.stock} Units in Stock` : 'Out of Stock'}
+                        </span>
+                    </p>
+                    
+                    <div style="display:flex; gap:15px; align-items:center;">
+                        <input type="number" id="buyQty" value="1" min="1" max="${product.stock}" 
+                               style="padding:12px; width:80px; border-radius:5px; border:1px solid #ddd;">
+                        
+                        <button onclick="directBuy()" 
+                                style="flex:1; padding:15px; background:#1b5e20; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold; font-size:16px;">
+                            BUY NOW & CHECKOUT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    renderReviews(); // Reviews ko render karne ka function
+} else {
+    detail.innerHTML = "<div style='text-align:center; padding:100px;'><h2>Product Not Found!</h2><a href='index.html'>Go Back to Store</a></div>";
+}
+}
+
+/* ==========================================
+   3. REVIEWS RENDERING
+   ========================================== */
+function renderReviews() {
+    // Agar koi review nahi hai to default hard-coded reviews dikhao
+    const reviews = JSON.parse(localStorage.getItem("reviews_" + productId)) || [
+        { name: "Sajid Mehmood", rating: 5, text: "Bohot hi umda quality hai. Delivery bhi time par mili." },
+        { name: "Ayesha Khan", rating: 4, text: "Cheez behtareen hai, decoration mein chaar chand laga diye." }
+    ];
+
+    reviewsList.innerHTML = "";
+    reviews.forEach(r => {
+        const stars = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+        reviewsList.innerHTML += `
+            <div style="border-bottom:1px solid #eee; padding:20px 0;">
+                <div style="color:#f9b115; font-size:16px; margin-bottom:5px;">${stars}</div>
+                <strong style="color:#333;">${r.name}</strong>
+                <p style="color:#666; margin-top:5px; line-height:1.5;">"${r.text}"</p>
+            </div>
+        `;
+    });
+}
+
+/* ==========================================
+   4. BUY NOW LOGIC (Direct Checkout)
+   ========================================== */
+function directBuy() {
+    const qty = parseInt(document.getElementById("buyQty").value);
+    
+    if (isNaN(qty) || qty <= 0) return alert("Please enter a valid quantity.");
+    if (qty > (product.stock || 0)) return alert("Sorry, not enough stock available!");
+
+    // Cart ko clear karke sirf isi product ko daalna direct buy ke liye
+    let tempCart = {};
+    tempCart[product.id] = { ...product, qty: qty };
+    
+    localStorage.setItem("cart", JSON.stringify(tempCart));
+    window.location.href = "checkout.html";
+}
+
+// Page load par Supabase se product fetch karo (ya fallback se render)
+loadProductFromSupabase();

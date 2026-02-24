@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Order Successful | BuildX</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .thankyou-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 60px 40px;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            margin: 20px;
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUpFade {
+            0% {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .success-icon-wrap {
+            width: 100px;
+            height: 100px;
+            background: #d1fae5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .success-icon-wrap::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            border: 2px solid #10b981;
+            animation: pulseRing 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        @keyframes pulseRing {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        .success-icon-wrap i {
+            color: #10b981;
+            font-size: 50px;
+        }
+
+        .thankyou-card h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .thankyou-card p {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .order-details-box {
+            background: #f9fafb;
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+            border: 1px dashed #e5e7eb;
+        }
+
+        .order-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .order-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="thankyou-card">
+        <div class="success-icon-wrap">
+            <i class='bx bx-check'></i>
+        </div>
+
+        <h1>Order Confirmed!</h1>
+        <p>Thank you for choosing BuildX. Your premium materials are being prepared for shipping.</p>
+
+        <div class="order-details-box">
+            <div class="order-row">
+                <span style="color:var(--text-muted);">Order Date:</span>
+                <strong id="tyDate" style="color:var(--text-dark);">Today</strong>
+            </div>
+            <div class="order-row">
+                <span style="color:var(--text-muted);">Estimated Delivery:</span>
+                <strong style="color:var(--primary);">2-3 Business Days</strong>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-primary" onclick="window.location.href='orders.html'">
+                Track My Order <i class='bx bx-right-arrow-alt'></i>
+            </button>
+            <button class="btn-secondary" onclick="window.location.href='index.html'">
+                Continue Shopping
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            document.getElementById("tyDate").innerText = dateStr;
+        });
+    </script>
+</body>
+
+</html>

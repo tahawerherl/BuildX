@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>BuildX | Welcome</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <!-- Optional: Boxicons for cleaner icons -->
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+
+  <div class="auth-wrapper">
+
+    <!-- EMAIL VIEW (LOGIN 1) -->
+    <div class="auth-card" id="stepEmail">
+      <div class="auth-header">
+        <div class="logo-container" style="justify-content:center; margin-bottom: 20px;">
+          Build<span>X</span>
+        </div>
+        <h2>Welcome back</h2>
+        <p>Enter your email to continue</p>
+      </div>
+      <div class="form-group">
+        <input type="email" id="loginEmail" class="form-input" placeholder="name@example.com">
+      </div>
+      <button class="btn-primary" onclick="continueToPassword()">
+        Continue <i class='bx bx-right-arrow-alt' style="font-size:20px;"></i>
+      </button>
+
+
+
+      <div class="auth-switch">
+        Don't have an account? <a href="#" onclick="showSignup()">Sign up</a>
+      </div>
+    </div>
+
+    <!-- PASSWORD VIEW (LOGIN 2) -->
+    <div class="auth-card" id="stepPassword" style="display:none;">
+      <div class="auth-header">
+        <i class='bx bx-arrow-back'
+          style="position:absolute; left:40px; top:55px; font-size:24px; cursor:pointer; color:var(--text-muted);"
+          onclick="showEmailStep()"></i>
+        <h2>Verify it's you</h2>
+        <p id="displayEmail">name@example.com</p>
+      </div>
+      <div class="form-group">
+        <input type="password" id="loginPassword" class="form-input" placeholder="Your password">
+      </div>
+      <button class="btn-primary" onclick="handleLogin()">
+        Sign In
+      </button>
+      <div class="auth-switch">
+        <a href="#">Forgot password?</a>
+      </div>
+    </div>
+
+    <!-- SIGNUP VIEW -->
+    <div class="auth-card" id="signupView" style="display:none;">
+      <div class="auth-header">
+        <h2>Join BuildX</h2>
+        <p>Select your account type to get started</p>
+      </div>
+
+      <!-- Role toggles (Radio buttons styled as blocks) -->
+      <div style="display:flex; gap:10px; margin-bottom:25px;">
+        <label style="flex:1; cursor:pointer;">
+          <input type="radio" name="roleSelect" value="customer" checked onchange="toggleBrandField()"
+            style="display:none;">
+          <div id="roleCustomerBtn"
+            style="padding:15px; text-align:center; border:2px solid var(--primary); border-radius:var(--radius-sm); font-weight:600; color:var(--primary); background:#fff4ed; transition:all 0.3s;">
+            Customer
+          </div>
+        </label>
+        <label style="flex:1; cursor:pointer;">
+          <input type="radio" name="roleSelect" value="seller" onchange="toggleBrandField()" style="display:none;">
+          <div id="roleSellerBtn"
+            style="padding:15px; text-align:center; border:2px solid #e5e7eb; border-radius:var(--radius-sm); font-weight:600; color:var(--text-muted); transition:all 0.3s;">
+            Seller
+          </div>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <input type="text" id="signupName" class="form-input" placeholder="Full Name">
+      </div>
+      <div class="form-group">
+        <input type="email" id="signupEmail" class="form-input" placeholder="Email Address">
+      </div>
+      <div class="form-group">
+        <input type="password" id="signupPassword" class="form-input" placeholder="Password (min. 6 chars)">
+      </div>
+
+      <div class="form-group" id="brandField" style="display:none;">
+        <input type="text" id="signupBrand" class="form-input" placeholder="Your Store / Brand Name">
+      </div>
+
+      <button class="btn-primary" onclick="handleSignup()">
+        Create Account
+      </button>
+
+
+
+      <div class="auth-switch">
+        Already have an account? <a href="#" onclick="showEmailStep()">Sign in</a>
+      </div>
+    </div>
+
+
+
+  </div>
+
+  <script src="auth.js"></script>
+</body>
+
+</html>

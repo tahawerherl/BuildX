@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Product Details | BuildX</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    .product-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 40px;
+    }
+
+    .product-image-container {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .product-image-container img {
+      max-width: 100%;
+      height: auto;
+      max-height: 500px;
+      object-fit: contain;
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .product-image-container:hover img {
+      transform: scale(1.08);
+    }
+
+    .product-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #fef08a;
+      color: #854d0e;
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      width: max-content;
+    }
+
+    .prod-title {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .prod-brand {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .prod-price {
+      font-size: 40px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 25px;
+      display: flex;
+      align-items: flex-start;
+      gap: 5px;
+    }
+
+    .prod-price span {
+      font-size: 18px;
+      margin-top: 8px;
+      color: var(--text-dark);
+    }
+
+    .prod-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      align-items: center;
+    }
+
+    .qty-control {
+      display: flex;
+      align-items: center;
+      background: #f3f4f6;
+      border-radius: var(--radius-pill);
+      padding: 5px;
+    }
+
+    .qty-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: white;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+    }
+
+    .qty-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .qty-input {
+      width: 40px;
+      text-align: center;
+      border: none;
+      background: transparent;
+      font-weight: bold;
+      font-family: 'Outfit';
+      font-size: 16px;
+    }
+
+    .features-list {
+      margin-top: 30px;
+      list-style: none;
+    }
+
+    .features-list li {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: var(--text-muted);
+    }
+
+    .features-list li i {
+      color: var(--primary);
+      font-size: 20px;
+    }
+
+    /* Review section modern */
+    .review-section {
+      max-width: 1200px;
+      margin: 60px auto;
+      padding: 40px;
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 40px;
+    }
+
+    @media (max-width: 900px) {
+
+      .product-layout,
+      .review-grid {
+        grid-template-columns: 1fr;
+        padding: 0 20px;
+      }
+
+      .prod-actions {
+        flex-direction: column;
+      }
+
+      .qty-control {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="main-header glass">
+    <div class="logo-container" onclick="window.location.href='index.html'">
+      Build<span>X</span>
+    </div>
+
+    <div class="search-wrapper">
+      <i class='bx bx-search search-icon'></i>
+      <input type="text" id="searchInput" placeholder="Search for tools, paint, hardware...">
+      <button class="search-btn">Search</button>
+    </div>
+
+    <div class="nav-actions">
+      <a href="auth.html" class="nav-btn" id="accountNav">
+        <i class='bx bx-user'></i>
+        <span id="navGreeting">Sign In</span>
+      </a>
+      <a href="orders.html" class="nav-btn">
+        <i class='bx bx-package'></i>
+        <span>Orders</span>
+      </a>
+      <a href="cart.html" class="nav-btn">
+        <i class='bx bx-cart-alt'></i>
+        <span>Cart</span>
+        <div class="cart-badge" id="cartCountBadge">0</div>
+      </a>
+    </div>
+  </header>
+
+  <main id="productDetailWrapper">
+    <!-- Dynamic JS Content -->
+    <div style="text-align:center; padding: 100px;">
+      <i class='bx bx-loader-alt bx-spin' style="font-size:50px; color:var(--primary);"></i>
+    </div>
+  </main>
+
+  <script src="product.js"></script>
+</body>
+
+</html>

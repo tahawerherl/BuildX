@@ -1,0 +1,3 @@
+# BuildX - Netlify config (optional, Git deploy ke liye)
+[build]
+  publish = "."

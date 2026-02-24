@@ -1,0 +1,81 @@
+const cartItemsContainer = document.getElementById("cartItemsContainer");
+const bottomSubtotal = document.getElementById("bottomSubtotal");
+const sidebarSubtotal = document.getElementById("sidebarSubtotal");
+
+function renderCartPage() {
+    let cart = JSON.parse(localStorage.getItem("cart")) || {};
+    cartItemsContainer.innerHTML = "";
+
+    let totalItems = 0;
+    let totalPrice = 0;
+
+    if (Object.keys(cart).length === 0) {
+        cartItemsContainer.innerHTML = "<h2 style='font-weight:400; margin:40px 0;'>Your BuildX Cart is empty.</h2><a href='index.html' style='color:#007185;'>Shop today's deals</a>";
+        updateTotals(0, 0);
+        return;
+    }
+
+    Object.values(cart).forEach(item => {
+        totalItems += item.qty;
+        totalPrice += item.price * item.qty;
+
+        let qtyOptions = "";
+        for (let i = 1; i <= Math.min(item.stock || 30, 30); i++) {
+            qtyOptions += `<option value="${i}" ${i === item.qty ? 'selected' : ''}>Qty: ${i}</option>`;
+        }
+
+        cartItemsContainer.innerHTML += `
+            <div class="amz-cart-item">
+                <img src="${item.image}" alt="${item.name}" onclick="window.location.href='product.html?id=${item.id}'" style="cursor:pointer;">
+                
+                <div class="amz-cart-item-details">
+                    <div style="display:flex; justify-content:space-between;">
+                        <div class="amz-cart-item-title" onclick="window.location.href='product.html?id=${item.id}'">${item.name}</div>
+                        <div class="amz-cart-item-price">PKR ${item.price.toLocaleString()}</div>
+                    </div>
+                    
+                    <div class="amz-cart-item-stock">In Stock</div>
+                    <div style="font-size:12px; color:#565959;">Eligible for FREE Shipping</div>
+                    
+                    <div class="amz-cart-item-actions">
+                        <select class="amz-qty-select" onchange="updateItemQty(${item.id}, this.value)">
+                            ${qtyOptions}
+                        </select>
+                        <span style="color:#ddd;">|</span>
+                        <span class="amz-action-link" onclick="deleteItem(${item.id})">Delete</span>
+                        <span style="color:#ddd;">|</span>
+                        <span class="amz-action-link">Save for later</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    updateTotals(totalItems, totalPrice);
+}
+
+function updateItemQty(id, newQty) {
+    let cart = JSON.parse(localStorage.getItem("cart")) || {};
+    if (cart[id]) {
+        cart[id].qty = parseInt(newQty);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCartPage();
+    }
+}
+
+function deleteItem(id) {
+    let cart = JSON.parse(localStorage.getItem("cart")) || {};
+    if (cart[id]) {
+        delete cart[id];
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCartPage();
+    }
+}
+
+function updateTotals(qty, price) {
+    const text = `Subtotal (${qty} items): <span style="font-weight:bold;">PKR ${price.toLocaleString()}</span>`;
+    bottomSubtotal.innerHTML = text;
+    sidebarSubtotal.innerHTML = text;
+}
+
+document.addEventListener("DOMContentLoaded", renderCartPage);

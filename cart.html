@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Shopping Cart | BuildX</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        .cart-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 40px;
+            display: flex;
+            gap: 40px;
+        }
+
+        .cart-main {
+            flex: 2;
+        }
+
+        .cart-sidebar {
+            flex: 1;
+            height: max-content;
+            position: sticky;
+            top: 100px;
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .cart-header {
+            font-size: 32px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 30px;
+            padding: 30px 0;
+            border-bottom: 1px solid #e5e7eb;
+            transition: all 0.3s;
+        }
+
+        .cart-item:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .cart-item img {
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+            background: white;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .cart-item-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .cart-item-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .cart-item-price {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .cart-qty-select {
+            padding: 8px 15px;
+            border-radius: var(--radius-pill);
+            border: 2px solid #e5e7eb;
+            font-family: 'Outfit';
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .cart-action-link {
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+
+        .cart-action-link:hover {
+            color: #ef4444;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: var(--text-muted);
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .cart-container {
+                flex-direction: column;
+                padding: 0 20px;
+            }
+
+            .cart-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="main-header glass">
+        <div class="logo-container" onclick="window.location.href='index.html'">
+            Build<span>X</span>
+        </div>
+
+        <div class="nav-actions">
+            <a href="auth.html" class="nav-btn" id="accountNav">
+                <i class='bx bx-user'></i>
+                <span id="navGreeting">Sign In</span>
+            </a>
+            <a href="orders.html" class="nav-btn">
+                <i class='bx bx-package'></i>
+                <span>Orders</span>
+            </a>
+            <a href="cart.html" class="nav-btn">
+                <i class='bx bx-cart-alt' style="color:var(--primary);"></i>
+                <span style="color:var(--primary);">Cart</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="cart-container">
+
+        <div class="cart-main">
+            <h1 class="cart-header">Your Cart</h1>
+            <div id="cartItemsContainer">
+                <!-- Injected via JS -->
+                <p style="text-align:center; padding:50px;"><i class='bx bx-loader-alt bx-spin'
+                        style="font-size:40px; color:var(--primary);"></i></p>
+            </div>
+        </div>
+
+        <div class="cart-sidebar">
+            <h2 style="font-size:20px; margin-bottom:20px;">Order Summary</h2>
+
+            <div class="summary-row">
+                <span>Subtotal (<span id="subTotalItems">0</span> items)</span>
+                <span id="sidebarSubtotal">PKR 0</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping estimate</span>
+                <span style="color:#10b981; font-weight:700;">FREE</span>
+            </div>
+            <div class="summary-row">
+                <span>Tax estimate</span>
+                <span>Calculated at checkout</span>
+            </div>
+
+            <div class="summary-total">
+                <span>Total</span>
+                <span id="superTotal">PKR 0</span>
+            </div>
+
+            <button class="btn-primary" onclick="window.location.href='checkout.html'">
+                Checkout <i class='bx bx-right-arrow-alt' style="font-size:20px;"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <script src="cart.js"></script>
+</body>
+
+</html>

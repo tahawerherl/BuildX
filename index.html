@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BuildX | Modern Store</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+
+    <!-- GEN-Z HEADER -->
+    <header class="main-header glass">
+        <div class="logo-container" onclick="window.location.href='index.html'">
+            Build<span>X</span>
+        </div>
+
+        <div class="search-wrapper">
+            <i class='bx bx-search search-icon'></i>
+            <input type="text" id="searchInput" placeholder="Search for tools, paint, hardware...">
+            <button class="search-btn">Search</button>
+        </div>
+
+        <div class="nav-actions">
+            <a href="auth.html" class="nav-btn" id="accountNav">
+                <i class='bx bx-user'></i>
+                <span id="navGreeting">Sign In</span>
+            </a>
+            <a href="orders.html" class="nav-btn">
+                <i class='bx bx-package'></i>
+                <span>Orders</span>
+            </a>
+            <a href="cart.html" class="nav-btn">
+                <i class='bx bx-cart-alt'></i>
+                <span>Cart</span>
+                <div class="cart-badge" id="cartCountBadge">0</div>
+            </a>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- HERO BANNER -->
+        <section class="hero-banner">
+            <div class="hero-content">
+                <h1>Build Your <span class="text-gradient">Dream Space</span></h1>
+                <p>Discover top-tier materials, tools, and hardware with exclusive next-day delivery on all premium
+                    orders.</p>
+                <a href="#shop" class="hero-btn">Explore Collection</a>
+            </div>
+        </section>
+
+        <!-- HORIZONTAL SCROLL: FEATURED CATEGORIES -->
+        <h2 class="section-title"><i class='bx bx-category' style="color:var(--primary);"></i> Top Categories</h2>
+        <div class="horizontal-scroll" style="margin-bottom: 20px;">
+            <!-- Category Items -->
+            <div class="scroll-item"
+                style="background:#fff4ed; padding:20px; border-radius:var(--radius-md); text-align:center; cursor:pointer;"
+                onclick="window.location.href='index.html'">
+                <i class='bx bx-wrench' style="font-size:40px; color:var(--primary); margin-bottom:10px;"></i>
+                <h3 style="font-size:16px;">Power Tools</h3>
+            </div>
+            <div class="scroll-item"
+                style="background:#f3f4f6; padding:20px; border-radius:var(--radius-md); text-align:center; cursor:pointer;"
+                onclick="window.location.href='index.html'">
+                <i class='bx bx-paint-roll' style="font-size:40px; color:var(--text-muted); margin-bottom:10px;"></i>
+                <h3 style="font-size:16px;">Paint & Decor</h3>
+            </div>
+            <div class="scroll-item"
+                style="background:#f3f4f6; padding:20px; border-radius:var(--radius-md); text-align:center; cursor:pointer;"
+                onclick="window.location.href='index.html'">
+                <i class='bx bx-bulb' style="font-size:40px; color:var(--text-muted); margin-bottom:10px;"></i>
+                <h3 style="font-size:16px;">Lighting</h3>
+            </div>
+            <div class="scroll-item"
+                style="background:#f3f4f6; padding:20px; border-radius:var(--radius-md); text-align:center; cursor:pointer;"
+                onclick="window.location.href='index.html'">
+                <i class='bx bx-hard-hat' style="font-size:40px; color:var(--text-muted); margin-bottom:10px;"></i>
+                <h3 style="font-size:16px;">Safety Gear</h3>
+            </div>
+            <div class="scroll-item"
+                style="background:#f3f4f6; padding:20px; border-radius:var(--radius-md); text-align:center; cursor:pointer;"
+                onclick="window.location.href='index.html'">
+                <i class='bx bx-building-house'
+                    style="font-size:40px; color:var(--text-muted); margin-bottom:10px;"></i>
+                <h3 style="font-size:16px;">Building Materials</h3>
+            </div>
+        </div>
+
+        <!-- PRODUCT GRID -->
+        <h2 class="section-title" id="shop"><i class='bx bx-trending-up' style="color:var(--primary);"></i> Trending
+            Products</h2>
+        <div class="product-grid" id="productGrid">
+            <div style="text-align:center; width:100%; padding: 50px; grid-column: 1 / -1;">
+                <i class='bx bx-loader-alt bx-spin' style="font-size:40px; color:var(--primary);"></i>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

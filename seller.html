@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Seller Dashboard | BuildX</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    body {
+      background-color: var(--bg-color);
+    }
+
+    .seller-header {
+      background: var(--card-bg);
+      padding: 15px 40px;
+      border-bottom: 2px solid #e5e7eb;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .seller-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .seller-logo {
+      font-size: 26px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .seller-logo span {
+      color: var(--primary);
+    }
+
+    .seller-badge {
+      font-size: 12px;
+      background: #fef08a;
+      color: #854d0e;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-weight: 700;
+    }
+
+    .seller-top-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .seller-top-links a {
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .seller-top-links a:hover {
+      color: var(--primary);
+    }
+
+    .seller-nav {
+      display: flex;
+      gap: 30px;
+    }
+
+    .seller-nav a {
+      color: var(--text-muted);
+      font-weight: 600;
+      padding-bottom: 15px;
+      border-bottom: 3px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .seller-nav a:hover,
+    .seller-nav a.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .amz-seller-content {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 40px;
+    }
+
+    .seller-section {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .seller-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .widget-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .widget-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 30px;
+      transition: transform 0.3s;
+    }
+
+    .widget-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .widget-card h3 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .widget-stat {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .widget-stat strong {
+      color: var(--text-dark);
+      font-size: 18px;
+    }
+
+    /* Inventory & Add Product UI */
+    .seller-page-header {
+      font-size: 32px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .inventory-table-container {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .inventory-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .inventory-table th,
+    .inventory-table td {
+      padding: 18px 25px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .inventory-table th {
+      background: #f9fafb;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    /* Accordion / Tab Form for Add Product */
+    .add-product-form {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      max-width: 800px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .form-tab-header {
+      display: flex;
+      background: #f9fafb;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .form-tab {
+      flex: 1;
+      padding: 20px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .form-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background: white;
+    }
+
+    .form-content {
+      padding: 40px;
+      display: none;
+    }
+
+    .form-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+      .seller-header {
+        padding: 15px 20px;
+      }
+
+      .seller-nav {
+        overflow-x: auto;
+        padding-bottom: 5px;
+      }
+
+      .amz-seller-content {
+        padding: 0 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="seller-header">
+    <div class="seller-top-row">
+      <div class="seller-logo" onclick="window.location.href='index.html'">
+        Build<span>X</span>
+        <div class="seller-badge">Seller Central</div>
+      </div>
+      <div class="seller-top-links">
+        <a href="#"><i class='bx bxs-store' style="font-size:20px;"></i> <span id="sellerBrandHeading">My
+            Store</span></a>
+        <a href="#" onclick="logout()"><i class='bx bx-log-out' style="font-size:20px;"></i> Logout</a>
+      </div>
+    </div>
+    <nav class="seller-nav">
+      <a href="#" id="nav-dashboard" class="active" onclick="switchSection('dashboard')"><i class='bx bx-grid-alt'></i>
+        Dashboard</a>
+      <a href="#" id="nav-inventory" onclick="switchSection('inventory')"><i class='bx bx-list-ul'></i> Manage
+        Inventory</a>
+      <a href="#" id="nav-addproduct" onclick="switchSection('addproduct')"><i class='bx bx-plus-circle'></i> Add
+        Product</a>
+      <a href="orders.html" id="nav-orders"><i class='bx bx-package'></i> Customer Orders</a>
+    </nav>
+  </header>
+
+  <div class="amz-seller-content">
+
+    <!-- DASHBOARD -->
+    <div id="sec-dashboard" class="seller-section active">
+      <div class="seller-page-header">
+        <h1>Overview</h1>
+      </div>
+
+      <div class="widget-grid">
+        <div class="widget-card">
+          <h3><i class='bx bx-line-chart' style="color:var(--primary);"></i> Sales Summary</h3>
+          <div class="widget-stat">
+            <span>Today's Sales</span>
+            <strong id="metricSalesToday" style="color:var(--primary);">PKR 0</strong>
+          </div>
+          <div class="widget-stat">
+            <span>Active Listings</span>
+            <strong id="metricTotalProducts">0</strong>
+          </div>
+        </div>
+
+        <div class="widget-card">
+          <h3><i class='bx bx-package' style="color:var(--primary);"></i> Order Fulfillment</h3>
+          <div class="widget-stat">
+            <span>Pending Orders</span>
+            <strong id="metricPendingOrders" style="color:#ef4444;">0</strong>
+          </div>
+          <div class="widget-stat">
+            <span>Items Delivered</span>
+            <strong id="metricDeliveredOrders" style="color:#10b981;">0</strong>
+          </div>
+        </div>
+
+        <div class="widget-card">
+          <h3><i class='bx bx-shield-quarter' style="color:var(--primary);"></i> Account Health</h3>
+          <div style="font-size:28px; color:#10b981; font-weight:800; margin-bottom:10px;">Excellent</div>
+          <div style="font-size:14px; color:var(--text-muted);">Your account is adhering to all BuildX policies.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVENTORY -->
+    <div id="sec-inventory" class="seller-section">
+      <div class="seller-page-header">
+        <h1>Inventory</h1>
+        <button class="btn-primary" style="width:max-content;" onclick="switchSection('addproduct')"><i
+            class='bx bx-plus'></i> Add New Product</button>
+      </div>
+
+      <div class="inventory-table-container">
+        <table class="inventory-table">
+          <thead>
+            <tr>
+              <th>Product Details</th>
+              <th>Price</th>
+              <th>Category</th>
+              <th>Available Stock</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productTable">
+            <tr>
+              <td colspan="5" style="text-align:center;"><i class='bx bx-loader-alt bx-spin'
+                  style="font-size:30px; color:var(--primary);"></i></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ADD PRODUCT -->
+    <div id="sec-addproduct" class="seller-section">
+      <div class="seller-page-header" style="justify-content:center;">
+        <h1><i class='bx bx-list-plus'></i> Add a Product</h1>
+      </div>
+
+      <div class="add-product-form">
+        <div class="form-tab-header">
+          <div class="form-tab active" id="tab1-head" onclick="switchFormTab(1)">1. Vital Info</div>
+          <div class="form-tab" id="tab2-head" onclick="switchFormTab(2)">2. Offer</div>
+          <div class="form-tab" id="tab3-head" onclick="switchFormTab(3)">3. Imagery & Details</div>
+        </div>
+
+        <input type="hidden" id="editProductId">
+
+        <!-- Tab 1 -->
+        <div class="form-content active" id="tab1-content">
+          <div class="form-group">
+            <label>Product Name</label>
+            <input type="text" id="productName" class="form-input" placeholder="e.g. BuildX Premium Drill 20V">
+          </div>
+          <button class="btn-primary" style="width:max-content; float:right;" onclick="switchFormTab(2)">Next <i
+              class='bx bx-right-arrow-alt'></i></button>
+        </div>
+
+        <!-- Tab 2 -->
+        <div class="form-content" id="tab2-content">
+          <div class="form-group">
+            <label>Product Category</label>
+            <select id="productCategory" class="form-input">
+              <option value="" disabled selected>Select a category...</option>
+              <option value="Power Tools">Power Tools</option>
+              <option value="Building Materials">Building Materials</option>
+              <option value="Paint & Decor">Paint & Decor</option>
+              <option value="Hardware & Fasteners">Hardware & Fasteners</option>
+              <option value="Lighting & Electrical">Lighting & Electrical</option>
+              <option value="Safety Gear">Safety Gear</option>
+              <option value="Plumbing">Plumbing</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Selling Price (PKR)</label>
+            <input type="number" id="productPrice" class="form-input" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>Available Quantity</label>
+            <input type="number" id="productStock" class="form-input" placeholder="e.g. 50">
+          </div>
+          <button class="btn-primary" style="width:max-content; float:right;" onclick="switchFormTab(3)">Next <i
+              class='bx bx-right-arrow-alt'></i></button>
+        </div>
+
+        <!-- Tab 3 -->
+        <div class="form-content" id="tab3-content">
+          <div class="form-group">
+            <label>Main Image URL</label>
+            <input type="text" id="productImage" class="form-input" placeholder="https:// images...">
+          </div>
+          <div class="form-group">
+            <label>Key Features (Comma separated)</label>
+            <textarea id="productDesc" class="form-input" rows="4"
+              placeholder="Durability, Lightweight, 1 Year Warranty..."></textarea>
+          </div>
+          <button class="btn-primary" style="width:100%; font-size:18px; padding:15px;" id="addBtn"
+            onclick="saveProduct()">
+            <i class='bx bx-cloud-upload' style="font-size:24px;"></i> Publish Listing
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="seller.js"></script>
+</body>
+
+</html>

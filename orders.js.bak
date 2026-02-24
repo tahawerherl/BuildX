@@ -1,0 +1,178 @@
+// orders.js
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+const ordersList = document.getElementById("ordersList");
+
+async function loadOrders() {
+    if (!currentUser) {
+        window.location.href = "auth.html";
+        return;
+    }
+
+    // Set Greeting
+    const greeting = document.getElementById("navGreeting");
+    if (greeting) greeting.innerText = "Hello, " + currentUser.name.split(" ")[0];
+
+    // Set Cart Badge
+    let cart = JSON.parse(localStorage.getItem("cart")) || {};
+    const badge = document.getElementById("cartCountBadge");
+    if (badge) badge.innerText = Object.values(cart).reduce((sum, item) => sum + item.qty, 0);
+
+    let orders = [];
+
+    ordersList.innerHTML = "<p>Loading orders...</p>";
+
+    if (window.supabaseClient) {
+        try {
+            let query = window.supabaseClient.from("orders").select("*").order("id", { ascending: false });
+
+            // If customer, filter by their email. If seller, fetch all (or we could filter by seller_id if we had complex JSON querying).
+            if (currentUser.role !== "seller") {
+                query = query.eq("customer_email", currentUser.email);
+            }
+
+            const { data, error } = await query;
+            if (error) throw error;
+            orders = data || [];
+        } catch (e) {
+            console.error("Supabase load error:", e.message);
+            orders = loadLocalOrders();
+        }
+    } else {
+        orders = loadLocalOrders();
+    }
+
+    renderOrders(orders);
+}
+
+function loadLocalOrders() {
+    let localOrders = JSON.parse(localStorage.getItem("orders")) || [];
+    if (currentUser.role !== "seller") {
+        localOrders = localOrders.filter(o => o.customerEmail === currentUser.email);
+    }
+    return localOrders.reverse();
+}
+
+function renderOrders(ordersData) {
+    ordersList.innerHTML = "";
+
+    if (ordersData.length === 0) {
+        ordersList.innerHTML = "<p>Looks like you haven't placed any orders yet.</p>";
+        return;
+    }
+
+    ordersData.forEach(order => {
+
+        let orderDate = new Date(order.created_at || order.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        let total = order.total.toLocaleString();
+
+        // Items HTML
+        let itemsHTML = "";
+        let itemsObj = order.items || {};
+        Object.values(itemsObj).forEach(item => {
+            itemsHTML += `
+                <div class="amz-order-item">
+                    <img src="${item.image}" alt="${item.name}" onclick="window.location.href='product.html?id=${item.id}'" style="cursor:pointer;">
+                    <div>
+                        <div class="amz-order-item-title" onclick="window.location.href='product.html?id=${item.id}'">${item.name}</div>
+                        <div style="font-size:12px; color:#565959;">Return eligible through 30 days</div>
+                        <div style="margin-top:5px;">
+                            <button class="amz-action-btn" style="width: auto; padding: 4px 10px; background: #ffd814; margin-right:5px;">Buy it again</button>
+                            <button class="amz-action-btn-sec" style="width: auto; padding: 4px 10px;">View your item</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // Seller Actions (Only if logged in as seller)
+        let sellerActionsHTML = "";
+        if (currentUser.role === "seller") {
+            sellerActionsHTML = `
+                <div class="amz-seller-actions">
+                    <span style="font-weight:bold; color:#B12704; font-size:13px;">Seller Options:</span>
+                    <button class="amz-action-btn-sec" style="width:auto; padding:5px 15px;" onclick="updateStatus(${order.id}, 'Shipped')">Mark Shipped</button>
+                    <button class="amz-action-btn-sec" style="width:auto; padding:5px 15px;" onclick="updateStatus(${order.id}, 'Delivered')">Mark Delivered</button>
+                    <span style="font-size:13px; color:#565959; margin-left:10px;">Current Status: <b>${order.status}</b></span>
+                </div>
+            `;
+        }
+
+        // Status Text logic
+        let statusString = "";
+        let statusColor = "#0f1111";
+        if (order.status === "Pending") {
+            statusString = "Arriving Soon";
+            statusColor = "#007185";
+        } else if (order.status === "Shipped") {
+            statusString = "Shipped - In Transit";
+            statusColor = "#c45500";
+        } else if (order.status === "Delivered") {
+            statusString = "Delivered";
+            statusColor = "#007600";
+        }
+
+        ordersList.innerHTML += `
+            <div class="amz-order-card">
+                <div class="amz-order-header">
+                    <div class="amz-order-header-left">
+                        <div>
+                            <span>ORDER PLACED</span>
+                            <strong>${orderDate}</strong>
+                        </div>
+                        <div>
+                            <span>TOTAL</span>
+                            <strong>PKR ${total}</strong>
+                        </div>
+                        <div>
+                            <span>SHIP TO</span>
+                            <strong style="color:#007185; cursor:pointer;" title="${order.address}">${order.customer_name || order.customerName} ▾</strong>
+                        </div>
+                    </div>
+                    <div class="amz-order-header-right">
+                        <span>ORDER # ${order.id}</span>
+                        <strong style="color:#007185; cursor:pointer;">View order details</strong> | 
+                        <strong style="color:#007185; cursor:pointer;">Invoice</strong>
+                    </div>
+                </div>
+                
+                <div class="amz-order-body">
+                    <div class="amz-order-items">
+                        <div class="amz-order-status" style="color: ${statusColor}">${statusString}</div>
+                        ${itemsHTML}
+                    </div>
+                    
+                    <div class="amz-order-actions">
+                        <button class="amz-action-btn-sec">Track package</button>
+                        <button class="amz-action-btn-sec">Return or replace items</button>
+                        <button class="amz-action-btn-sec">Share gift receipt</button>
+                        <button class="amz-action-btn-sec">Write a product review</button>
+                    </div>
+                </div>
+                ${sellerActionsHTML}
+            </div>
+        `;
+    });
+}
+
+async function updateStatus(orderId, newStatus) {
+    if (window.supabaseClient) {
+        try {
+            const { error } = await window.supabaseClient.from("orders").update({ status: newStatus }).eq("id", orderId);
+            if (error) throw error;
+            loadOrders();
+        } catch (e) {
+            console.error(e);
+            alert("Failed to update: " + e.message);
+        }
+    } else {
+        const localOrders = JSON.parse(localStorage.getItem("orders")) || [];
+        const orderIndex = localOrders.findIndex(o => o.id === orderId);
+        if (orderIndex !== -1) {
+            localOrders[orderIndex].status = newStatus;
+            localStorage.setItem("orders", JSON.stringify(localOrders));
+            loadOrders();
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", loadOrders);

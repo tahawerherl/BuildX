@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BuildX | Build Better</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header>
+  <h1>BuildX</h1>
+
+  <nav class="main-nav">
+    <a href="#">Home</a>
+
+    <input
+      type="text"
+      id="searchInput"
+      class="nav-search"
+      placeholder="Search products..."
+    />
+<select id="sortSelect" class="sort-select">
+  <option value="relevance">Sort by: Relevance</option>
+  <option value="priceLow">Price: Low to High</option>
+  <option value="priceHigh">Price: High to Low</option>
+  <option value="rating">Customer Rating</option>
+  <option value="best">Best Seller</option>
+</select>
+
+    <a href="#cart">Cart</a>
+    <button id="sellerBtn">Login / Sign Up</button>
+<a href="orders.html">Track Orders</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <h2>Everything You Need to Build Better</h2>
+  <p>Tools, Paint, Lighting & More</p>
+  <button onclick="scrollToProducts()">Shop Now</button>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products" class="products">
+  <h2>Popular Products</h2>
+  <div class="product-grid" id="productGrid"></div>
+</section>
+
+<!-- CART -->
+<section id="cart" class="cart">
+  <h2>Your Cart</h2>
+
+  <table width="100%">
+    <thead>
+      <tr>
+        <th align="left">Product</th>
+        <th align="right">Price</th>
+      </tr>
+    </thead>
+    <tbody id="cartItems"></tbody>
+  </table>
+
+  <h3 id="totalPrice">Total: PKR 0</h3>
+
+  <button class="checkout-btn" onclick="openCheckout()">
+    Proceed to Checkout
+  </button>
+</section>
+
+<!-- CHECKOUT MODAL -->
+<div id="checkoutModal" class="modal">
+  <div class="modal-content">
+    <h2>Checkout</h2>
+
+    <input type="text" placeholder="Full Name">
+    <input type="text" placeholder="Address">
+    <input type="text" placeholder="City">
+    <input type="text" placeholder="Card Number">
+
+    <button onclick="placeOrder()">Place Order</button>
+    <button class="close-btn" onclick="closeCheckout()">Cancel</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
