@@ -554,7 +554,7 @@ const SellerDashboard = () => {
                                     <h3 style={{ margin: 0, fontSize: '15px', color: '#4b5563', fontWeight: 600 }}>Conversion Rate</h3>
                                     <div style={{ background: '#ede9fe', color: '#8b5cf6', padding: '8px', borderRadius: '8px' }}><i className='bx bx-line-chart' style={{ fontSize: '20px' }}></i></div>
                                 </div>
-                                <div style={{ fontSize: '32px', fontWeight: 800, color: '#111827' }}>12.4%</div>
+                                <div style={{ fontSize: '32px', fontWeight: 800, color: '#111827' }}>0.0%</div>
                             </div>
                         </div>
 
@@ -574,13 +574,13 @@ const SellerDashboard = () => {
                                 <div style={{ position: 'absolute', width: '100%', borderTop: '1px dashed #e2e8f0', bottom: '150px', zIndex: 0 }}></div>
 
                                 {/* Bars */}
-                                <div style={{ flex: 1, background: '#bae6fd', height: '30%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, transition: 'height 1s ease-out' }}></div>
-                                <div style={{ flex: 1, background: '#7dd3fc', height: '45%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, transition: 'height 1s ease-out' }}></div>
-                                <div style={{ flex: 1, background: '#38bdf8', height: '60%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, transition: 'height 1s ease-out' }}></div>
-                                <div style={{ flex: 1, background: '#0ea5e9', height: '50%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, transition: 'height 1s ease-out' }}></div>
-                                <div style={{ flex: 1, background: '#0284c7', height: '80%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, transition: 'height 1s ease-out' }}></div>
-                                <div style={{ flex: 1, background: '#0369a1', height: '70%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, transition: 'height 1s ease-out' }}></div>
-                                <div style={{ flex: 1, background: '#f97316', height: '95%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, boxShadow: '0 0 15px rgba(249, 115, 22, 0.4)', transition: 'height 1s ease-out' }}></div>
+                                <div style={{ flex: 1, background: '#bae6fd', height: '0%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, transition: 'height 1s ease-out' }}></div>
+                                <div style={{ flex: 1, background: '#7dd3fc', height: '0%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, transition: 'height 1s ease-out' }}></div>
+                                <div style={{ flex: 1, background: '#38bdf8', height: '0%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, transition: 'height 1s ease-out' }}></div>
+                                <div style={{ flex: 1, background: '#0ea5e9', height: '0%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, transition: 'height 1s ease-out' }}></div>
+                                <div style={{ flex: 1, background: '#0284c7', height: '0%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, transition: 'height 1s ease-out' }}></div>
+                                <div style={{ flex: 1, background: '#0369a1', height: '0%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, transition: 'height 1s ease-out' }}></div>
+                                <div style={{ flex: 1, background: '#f97316', height: '0%', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 1, boxShadow: 'none', transition: 'height 1s ease-out' }}></div>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 20px 0 20px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
                                 <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span style={{ color: '#f97316' }}>Sun</span>
@@ -602,12 +602,12 @@ const SellerDashboard = () => {
                                         <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>Target: &lt; 2%</div>
                                     </div>
                                     <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '8px' }}>
-                                        <div style={{ fontSize: '24px', fontWeight: 800, color: '#10b981' }}>100%</div>
+                                        <div style={{ fontSize: '24px', fontWeight: 800, color: '#10b981' }}>N/A</div>
                                         <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginTop: '5px' }}>On-Time Delivery</div>
                                         <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>Target: &gt; 95%</div>
                                     </div>
                                     <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '8px' }}>
-                                        <div style={{ fontSize: '24px', fontWeight: 800, color: '#10b981' }}>100%</div>
+                                        <div style={{ fontSize: '24px', fontWeight: 800, color: '#10b981' }}>N/A</div>
                                         <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginTop: '5px' }}>Valid Tracking</div>
                                         <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>Target: &gt; 99%</div>
                                     </div>
@@ -637,21 +637,16 @@ const SellerDashboard = () => {
                                 </div>
                                 <div style={{ padding: '25px', flex: 1, display: 'flex', flexDirection: 'column', gap: '15px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '10px' }}>
-                                        <div style={{ fontSize: '36px', fontWeight: 800, color: '#111827' }}>4.8</div>
+                                        <div style={{ fontSize: '36px', fontWeight: 800, color: '#111827' }}>0.0</div>
                                         <div>
                                             <div style={{ color: '#eab308', fontSize: '18px', letterSpacing: '2px' }}>
-                                                <i className='bx bxs-star'></i><i className='bx bxs-star'></i><i className='bx bxs-star'></i><i className='bx bxs-star'></i><i className='bx bxs-star-half'></i>
+                                                <i className='bx bx-star'></i><i className='bx bx-star'></i><i className='bx bx-star'></i><i className='bx bx-star'></i><i className='bx bx-star'></i>
                                             </div>
-                                            <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>(124 Ratings)</div>
+                                            <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>(0 Ratings)</div>
                                         </div>
                                     </div>
                                     <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '15px' }}>
-                                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#111827', marginBottom: '4px' }}>"Fast shipping, item as described!"</div>
-                                        <div style={{ fontSize: '11px', color: '#64748b' }}>- Sarah J. (Verified Buyer)</div>
-                                    </div>
-                                    <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: '15px' }}>
-                                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#111827', marginBottom: '4px' }}>"Great quality tools, recommended."</div>
-                                        <div style={{ fontSize: '11px', color: '#64748b' }}>- Mike T. (Verified Buyer)</div>
+                                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#64748b', fontStyle: 'italic', marginBottom: '4px' }}>No reviews received yet.</div>
                                     </div>
                                     <button style={{ marginTop: 'auto', background: 'transparent', border: '1px solid #e2e8f0', color: '#475569', padding: '8px', borderRadius: '6px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', width: '100%', transition: 'background 0.2s' }} onMouseOver={e => e.target.style.background = '#f8fafc'} onMouseOut={e => e.target.style.background = 'transparent'}>View All Reviews</button>
                                 </div>
